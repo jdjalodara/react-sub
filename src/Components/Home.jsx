@@ -37,12 +37,13 @@ const Home = () => {
         const q = query(collection(firestore, 'listings'));
         const querySnapshot = await getDocs(q);
 
+        console.log('querySnapshot::', querySnapshot.docs);
+
         let matchedVideo = null;
         const videoList = [];
 
         querySnapshot.forEach(doc => {
           const data = doc.data();
-
           if (data.id === videoID) {
             matchedVideo = {
               videoURL: data.videoURL,
@@ -94,7 +95,7 @@ const Home = () => {
           // Otherwise, just pick three random videos
           finalVideos = videoList.slice(0, 3);
         }
-
+        console.log('finalVideos::', finalVideos);
         setVideos(finalVideos);
       } catch (error) {
         console.error('Error fetching videos:', error);
@@ -138,15 +139,14 @@ const Home = () => {
     }
   };
 
-
   const handleSharing = async () => {
     if (navigator.share) {
       try {
 
         const shareData = {
-          title: "Sublynyc",
-          text: "Hey Check out this sublet on Subly!",
-          url: "http://sublynyc.com",
+          title: "",
+          text: "",
+          url: "https://sublynyc.com",
         };
 
         await navigator
@@ -162,9 +162,6 @@ const Home = () => {
       console.log("Web share is currently not supported on this browser. Please provide a callback");
     }
   };
-
-
-  console.log('this is video list', videos);
 
   return (
     <>
@@ -235,8 +232,6 @@ const Home = () => {
           </div>
         </div>
       ))}
-
-
 
       <footer className="footer">
         <ul>
