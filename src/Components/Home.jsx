@@ -29,6 +29,8 @@ const Home = () => {
 
   const [videos, setVideos] = useState([]);
   const videoRefs = useRef([]); // Create a ref to store video elements
+  const [loadedCount, setLoadedCount] = useState(3);
+  const [videoList, setVideoList] = useState([]);
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -88,15 +90,18 @@ const Home = () => {
 
         let finalVideos = videoList;
 
+
         if (matchedVideo) {
           // Keep the first video as matchedVideo and add two random videos from the shuffled list
           finalVideos = [matchedVideo, ...videoList.slice(0, 2)];
         } else {
           // Otherwise, just pick three random videos
           finalVideos = videoList.slice(0, 3);
+          setVideoList(videoList);
+          setVideos(videoList.slice(0, 3));
         }
         console.log('finalVideos::', finalVideos);
-        setVideos(finalVideos);
+
       } catch (error) {
         console.error('Error fetching videos:', error);
       }
@@ -105,12 +110,33 @@ const Home = () => {
     fetchVideos();
   }, []);
 
+  console.log('videossssssssssssssssssssssssssssssss', videoList)
   useEffect(() => {
     // Ensure that the first video auto-plays after videos are set
     if (videos.length > 0 && videoRefs.current[0]) {
       videoRefs.current[0].play();
     }
   }, [videos]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+        // User has scrolled to the bottom, load the next 3 videos
+        setLoadedCount(prevCount => prevCount + 3);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  useEffect(() => {
+    // Load more videos as the loadedCount increases
+    setVideos(prevVideos => [...prevVideos, ...videoList.slice(prevVideos.length, loadedCount)]);
+  }, [loadedCount]);
 
 
   const formatDate = (unixTimestamp) => {
